@@ -1,7 +1,7 @@
 services:
   - type: web
     name: ecommerce-backend
-    env: node
+    runtime: node
     buildCommand: cd backend && npm install
     startCommand: cd backend && node server.js
     envVars:
@@ -10,11 +10,10 @@ services:
       - key: PORT
         value: 5000
 
-  - type: web
+  - type: static
     name: ecommerce-frontend
-    env: static
     buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: ./frontend/build
+    publishPath: ./frontend/build
     envVars:
       - key: REACT_APP_API_URL
         value: https://ecommerce-backend.onrender.com
