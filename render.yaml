@@ -1,5 +1,4 @@
 services:
-  # Backend API Service
   - type: web
     name: ecommerce-backend
     env: node
@@ -10,9 +9,7 @@ services:
         generateValue: true
       - key: PORT
         value: 5000
-    plan: free
 
-  # Frontend Static Site
   - type: web
     name: ecommerce-frontend
     env: static
@@ -21,4 +18,3 @@ services:
     envVars:
       - key: REACT_APP_API_URL
         value: https://ecommerce-backend.onrender.com
-    plan: free
