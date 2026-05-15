@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const { initDB } = require('./database');
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
@@ -11,12 +12,10 @@ dotenv.config();
 
 const app = express();
 
-// Updated CORS configuration
+// CORS for production
 app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: '*',
+  credentials: true
 }));
 
 app.use(express.json());
@@ -27,16 +26,20 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Test route
-app.get('/test', (req, res) => {
-  res.json({ message: 'Backend is working!' });
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Server is running' });
 });
 
 const PORT = process.env.PORT || 5000;
 
+// Initialize database and start server
 initDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📝 Test URL: http://localhost:${PORT}/test`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
+    console.log(`✅ Health check: http://localhost:${PORT}/health`);
   });
+}).catch(err => {
+  console.error('Failed to initialize database:', err);
+  process.exit(1);
 });
