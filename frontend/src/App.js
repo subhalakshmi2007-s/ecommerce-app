@@ -7,7 +7,7 @@ import Cart from './pages/Cart';
 import Admin from './pages/Admin';
 import Navbar from './components/Navbar';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 function App() {
   const [user, setUser] = useState(null);
