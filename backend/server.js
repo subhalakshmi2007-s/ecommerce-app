@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { initDB, allQuery, getQuery, runQuery } = require('./database');
@@ -14,14 +13,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ========== SIMPLE TEST ROUTES (Working without external files) ==========
+// ========== DIRECT ROUTES (No external files needed) ==========
 
 // Root route
 app.get('/', (req, res) => {
   res.json({ 
     message: 'Ecommerce API is running!',
     endpoints: {
-      test: '/api/test',
       health: '/health',
       products: '/api/products',
       login: '/api/auth/login',
@@ -32,20 +30,10 @@ app.get('/', (req, res) => {
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Server is running', timestamp: new Date() });
+  res.json({ status: 'OK', message: 'Server is running' });
 });
 
-// Test API
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'API is working!', time: new Date() });
-});
-
-// Test products
-app.get('/api/products-test', (req, res) => {
-  res.json([{ id: 1, name: 'Test Product', price: 99.99 }]);
-});
-
-// ========== PRODUCTS API (Direct implementation) ==========
+// ========== PRODUCTS ROUTES ==========
 app.get('/api/products', async (req, res) => {
   try {
     const products = await allQuery('SELECT * FROM products ORDER BY id');
@@ -66,7 +54,7 @@ app.get('/api/products/:id', async (req, res) => {
   }
 });
 
-// ========== AUTH API (Direct implementation) ==========
+// ========== AUTH ROUTES ==========
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -107,17 +95,45 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// ========== ORDER ROUTES ==========
+app.post('/api/orders', async (req, res) => {
+  try {
+    const { items, address, userId } = req.body;
+    
+    let total = 0;
+    for (let item of items) {
+      const product = await getQuery('SELECT price FROM products WHERE id = ?', [item.productId]);
+      total += product.price * item.quantity;
+    }
+    
+    const orderResult = await runQuery(
+      'INSERT INTO orders (user_id, total, address) VALUES (?, ?, ?)',
+      [userId, total, address]
+    );
+    
+    const orderId = orderResult.lastID;
+    
+    for (let item of items) {
+      const product = await getQuery('SELECT price FROM products WHERE id = ?', [item.productId]);
+      await runQuery(
+        'INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)',
+        [orderId, item.productId, item.quantity, product.price]
+      );
+    }
+    
+    res.json({ message: 'Order placed successfully!', orderId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ========== START SERVER ==========
 const PORT = process.env.PORT || 5000;
 
 initDB().then(() => {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📍 Health: http://localhost:${PORT}/health`);
-    console.log(`📍 Test: http://localhost:${PORT}/api/test`);
-    console.log(`📍 Products: http://localhost:${PORT}/api/products`);
+    console.log(`📍 Products API: /api/products`);
+    console.log(`📍 Health: /health`);
   });
-}).catch(err => {
-  console.error('Database error:', err);
-  process.exit(1);
 });
