@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
+const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { initDB, allQuery, getQuery, runQuery } = require('./database');
@@ -126,6 +128,18 @@ app.post('/api/orders', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// ========== SERVE FRONTEND ==========
+const frontendPath = path.join(__dirname, '../frontend/build');
+if (fs.existsSync(frontendPath)) {
+  console.log('✅ Serving frontend from:', frontendPath);
+  app.use(express.static(frontendPath));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+} else {
+  console.log('⚠️ Frontend build not found at:', frontendPath);
+}
 
 // ========== START SERVER ==========
 const PORT = process.env.PORT || 5000;
