@@ -1,0 +1,11 @@
+{
+  "name": "ecommerce-fullstack",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build && cd ../backend && npm install",
+    "start": "cd backend && node server.js"
+  },
+  "engines": {
+    "node": "20.18.0"
+  }
+}
