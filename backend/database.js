@@ -1,42 +1,45 @@
-const sqlite3 = require('sqlite3').verbose();
+const Database = require('better-sqlite3');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const fs = require('fs');
 
-// Use different database path for production (Render) vs local
-const dbPath = process.env.NODE_ENV === 'production' 
-  ? '/tmp/ecommerce.db' 
-  : path.join(__dirname, 'ecommerce.db');
+// Database path - works on both local and Render
+let dbPath;
+if (process.env.NODE_ENV === 'production') {
+  // Use /tmp directory on Render (writable)
+  dbPath = '/tmp/ecommerce.db';
+} else {
+  dbPath = path.join(__dirname, 'ecommerce.db');
+}
 
-console.log(`📁 Using database at: ${dbPath}`);
+console.log(`📁 Database path: ${dbPath}`);
 
-const db = new sqlite3.Database(dbPath);
+// Ensure directory exists for production
+if (process.env.NODE_ENV === 'production') {
+  const dbDir = path.dirname(dbPath);
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
+}
 
+// Create database connection
+const db = new Database(dbPath);
+
+// Helper functions
 function runQuery(query, params = []) {
-  return new Promise((resolve, reject) => {
-    db.run(query, params, function(err) {
-      if (err) reject(err);
-      else resolve(this);
-    });
-  });
+  const stmt = db.prepare(query);
+  const result = stmt.run(...params);
+  return { lastID: result.lastInsertRowid };
 }
 
 function getQuery(query, params = []) {
-  return new Promise((resolve, reject) => {
-    db.get(query, params, (err, row) => {
-      if (err) reject(err);
-      else resolve(row);
-    });
-  });
+  const stmt = db.prepare(query);
+  return stmt.get(...params);
 }
 
 function allQuery(query, params = []) {
-  return new Promise((resolve, reject) => {
-    db.all(query, params, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
+  const stmt = db.prepare(query);
+  return stmt.all(...params);
 }
 
 async function initDB() {
@@ -44,7 +47,7 @@ async function initDB() {
     console.log('📦 Starting database setup...');
     
     // Create users table
-    await runQuery(`
+    db.exec(`
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -56,7 +59,7 @@ async function initDB() {
     console.log('✅ Users table created');
 
     // Create products table
-    await runQuery(`
+    db.exec(`
       CREATE TABLE IF NOT EXISTS products (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -71,7 +74,7 @@ async function initDB() {
     console.log('✅ Products table created');
 
     // Create orders table
-    await runQuery(`
+    db.exec(`
       CREATE TABLE IF NOT EXISTS orders (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
@@ -85,22 +88,24 @@ async function initDB() {
     console.log('✅ Orders table created');
 
     // Create order_items table
-    await runQuery(`
+    db.exec(`
       CREATE TABLE IF NOT EXISTS order_items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         order_id INTEGER,
         product_id INTEGER,
         quantity INTEGER NOT NULL,
-        price REAL NOT NULL
+        price REAL NOT NULL,
+        FOREIGN KEY (order_id) REFERENCES orders(id),
+        FOREIGN KEY (product_id) REFERENCES products(id)
       )
     `);
     console.log('✅ Order items table created');
 
     // Create admin user
-    const admin = await getQuery('SELECT * FROM users WHERE email = ?', ['admin@example.com']);
+    const admin = getQuery('SELECT * FROM users WHERE email = ?', ['admin@example.com']);
     if (!admin) {
       const hashedPassword = await bcrypt.hash('admin123', 10);
-      await runQuery(
+      runQuery(
         'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
         ['Admin', 'admin@example.com', hashedPassword, 'admin']
       );
@@ -108,7 +113,7 @@ async function initDB() {
     }
 
     // Check if products exist
-    const count = await getQuery('SELECT COUNT(*) as total FROM products');
+    const count = getQuery('SELECT COUNT(*) as total FROM products');
     if (count.total === 0) {
       const products = [
         // Electronics
@@ -141,7 +146,7 @@ async function initDB() {
       ];
       
       for (const product of products) {
-        await runQuery(
+        runQuery(
           'INSERT INTO products (name, description, price, category, stock, image_url, rating) VALUES (?, ?, ?, ?, ?, ?, ?)',
           product
         );
@@ -153,6 +158,7 @@ async function initDB() {
     
   } catch (error) {
     console.error('❌ Database error:', error);
+    throw error;
   }
 }
 
