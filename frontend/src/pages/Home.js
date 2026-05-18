@@ -22,7 +22,7 @@ function Home({ addToCart, API_URL }) {
       setFilteredProducts(response.data);
       setLoading(false);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching products:', error);
       setLoading(false);
     }
   };
@@ -54,13 +54,25 @@ function Home({ addToCart, API_URL }) {
 
   if (loading) return <div className="loading">Loading products...</div>;
 
+  if (products.length === 0) {
+    return (
+      <div>
+        <div className="hero">
+          <h1>Welcome to ShopEase</h1>
+          <p>Discover amazing products at best prices!</p>
+        </div>
+        <div className="loading">No products found. Please check back later.</div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="hero">
-        <h1>Welcome to Flip Shop</h1>
-        <p>Discover amazing products at best prices!</p>
+        <h1>Welcome to ShopEase</h1>
+        <p>Discover {products.length}+ amazing products at best prices!</p>
         <div className="hero-stats">
-          <span>📦 Premium Products</span>
+          <span>📦 {products.length}+ Products</span>
           <span>⭐ 4.5+ Rating</span>
           <span>🚚 Free Shipping</span>
         </div>
@@ -104,7 +116,7 @@ function Home({ addToCart, API_URL }) {
       <div className="products-grid">
         {filteredProducts.map(product => (
           <div key={product.id} className="product-card">
-            <img src={product.image_url} alt={product.name} />
+            <img src={product.image_url} alt={product.name} onError={(e) => { e.target.src = 'https://via.placeholder.com/300'; }} />
             <div className="product-info">
               <h3>{product.name}</h3>
               <p className="category">{product.category}</p>
@@ -119,6 +131,7 @@ function Home({ addToCart, API_URL }) {
       {filteredProducts.length === 0 && (
         <div className="no-results">
           <h3>No products found</h3>
+          <p>Try changing your search or filter criteria</p>
         </div>
       )}
     </div>
