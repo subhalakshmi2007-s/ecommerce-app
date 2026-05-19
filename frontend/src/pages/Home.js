@@ -9,6 +9,7 @@ function Home({ addToCart, API_URL }) {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('default');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchProducts();
@@ -16,14 +17,29 @@ function Home({ addToCart, API_URL }) {
 
   const fetchProducts = async () => {
     try {
-      console.log('Fetching from:', `${API_URL}/api/products`);
-      const response = await axios.get(`${API_URL}/api/products`);
-      console.log('Products received:', response.data);
-      setProducts(response.data);
-      setFilteredProducts(response.data);
-      setLoading(false);
+      setLoading(true);
+      setError(null);
+      const url = `${API_URL}/api/products`;
+      console.log('Fetching from:', url);
+      const response = await axios.get(url);
+      console.log('Response data:', response.data);
+      console.log('Number of products:', response.data.length);
+      
+      if (response.data && Array.isArray(response.data)) {
+        setProducts(response.data);
+        setFilteredProducts(response.data);
+      } else {
+        console.error('Invalid response format:', response.data);
+        setProducts([]);
+        setFilteredProducts([]);
+        setError('Invalid data format received');
+      }
     } catch (error) {
       console.error('Error fetching products:', error);
+      setError(error.message);
+      setProducts([]);
+      setFilteredProducts([]);
+    } finally {
       setLoading(false);
     }
   };
@@ -39,8 +55,8 @@ function Home({ addToCart, API_URL }) {
     
     if (searchTerm) {
       result = result.filter(p => 
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.description.toLowerCase().includes(searchTerm.toLowerCase())
+        p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.description?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
@@ -53,13 +69,46 @@ function Home({ addToCart, API_URL }) {
     setFilteredProducts(result);
   }, [selectedCategory, searchTerm, sortBy, products]);
 
-  if (loading) return <div className="loading">Loading products...</div>;
+  if (loading) {
+    return (
+      <div className="loading">
+        <h2>Loading products...</h2>
+        <p>Please wait while we fetch the products.</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="no-results">
+        <h3>Error loading products</h3>
+        <p>{error}</p>
+        <button onClick={fetchProducts}>Try Again</button>
+      </div>
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <div>
+        <div className="hero">
+          <h1>Welcome to ShopEase</h1>
+          <p>Discover amazing products at best prices!</p>
+        </div>
+        <div className="no-results">
+          <h3>No products found in database</h3>
+          <p>Please check the backend API at: {API_URL}/api/products</p>
+          <button onClick={fetchProducts}>Refresh Products</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
       <div className="hero">
         <h1>Welcome to ShopEase</h1>
-        <p>Discover {products.length}+ amazing products at best prices!</p>
+        <p>Discover {products.length} amazing products at best prices!</p>
         <div className="hero-stats">
           <span>📦 {products.length}+ Products</span>
           <span>⭐ 4.5+ Rating</span>
@@ -109,7 +158,11 @@ function Home({ addToCart, API_URL }) {
               {product.stock < 10 && <span className="badge low-stock">🔥 Low Stock</span>}
               {product.rating >= 4.5 && <span className="badge bestseller">⭐ Bestseller</span>}
             </div>
-            <img src={product.image_url} alt={product.name} />
+            <img 
+              src={product.image_url} 
+              alt={product.name}
+              onError={(e) => { e.target.src = 'https://via.placeholder.com/300?text=Product'; }}
+            />
             <div className="product-info">
               <h3>{product.name}</h3>
               <p className="category">{product.category}</p>
@@ -123,8 +176,8 @@ function Home({ addToCart, API_URL }) {
                 </div>
                 <Link to={`/product/${product.id}`} className="view-details-btn">View Details</Link>
               </div>
-              <button onClick={() => addToCart(product)}>Add to Cart</button>
-              <div className="stock-info">In Stock: {product.stock} items</div>
+              <button onClick={() => addToCart(product)}>🛒 Add to Cart</button>
+              <div className="stock-info">✅ In Stock: {product.stock} items</div>
             </div>
           </div>
         ))}
