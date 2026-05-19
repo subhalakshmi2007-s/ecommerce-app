@@ -5,7 +5,7 @@ function Navbar({ user, logout, cartCount, darkMode, toggleDarkMode }) {
   return (
     <nav className="navbar">
       <div className="logo">
-        <Link to="/">🛍️ Flip Shop</Link>
+        <Link to="/">🛍️ ShopEase</Link>
       </div>
       <div className="nav-links">
         <Link to="/">Home</Link>
@@ -13,6 +13,7 @@ function Navbar({ user, logout, cartCount, darkMode, toggleDarkMode }) {
         {user ? (
           <>
             <span>👋 {user.name}</span>
+            <Link to="/orders">📦 My Orders</Link>
             {user.role === 'admin' && <Link to="/admin">⚙️ Admin</Link>}
             <button onClick={logout}>Logout</button>
           </>

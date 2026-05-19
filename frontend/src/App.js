@@ -5,16 +5,17 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Cart from './pages/Cart';
 import Admin from './pages/Admin';
+import ProductDetails from './pages/ProductDetails';
+import Orders from './pages/Orders';  // ← ADD THIS LINE
 import Navbar from './components/Navbar';
 
-const API_URL = '';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 function App() {
   const [user, setUser] = useState(null);
   const [cart, setCart] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
 
-  // Check for saved dark mode preference
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode === 'true') {
@@ -23,7 +24,6 @@ function App() {
     }
   }, []);
 
-  // Apply dark mode to body
   useEffect(() => {
     if (darkMode) {
       document.body.setAttribute('data-theme', 'dark');
@@ -105,12 +105,14 @@ function App() {
       />
       <div className="container">
         <Routes>
-          <Route path="/" element={<Home addToCart={addToCart} API_URL={API_URL} />} />
-          <Route path="/login" element={<Login setUser={setUser} API_URL={API_URL} />} />
-          <Route path="/register" element={<Register setUser={setUser} API_URL={API_URL} />} />
-          <Route path="/cart" element={<Cart cart={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart} user={user} clearCart={clearCart} API_URL={API_URL} />} />
-          <Route path="/admin/*" element={user?.role === 'admin' ? <Admin API_URL={API_URL} /> : <Navigate to="/" />} />
-        </Routes>
+  <Route path="/" element={<Home addToCart={addToCart} API_URL={API_URL} />} />
+  <Route path="/product/:id" element={<ProductDetails addToCart={addToCart} API_URL={API_URL} />} />
+  <Route path="/login" element={<Login setUser={setUser} API_URL={API_URL} />} />
+  <Route path="/register" element={<Register setUser={setUser} API_URL={API_URL} />} />
+  <Route path="/cart" element={<Cart cart={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart} user={user} clearCart={clearCart} API_URL={API_URL} />} />
+  <Route path="/orders" element={<Orders user={user} API_URL={API_URL} />} />
+  <Route path="/admin/*" element={user?.role === 'admin' ? <Admin API_URL={API_URL} /> : <Navigate to="/" />} />
+</Routes>
       </div>
     </BrowserRouter>
   );

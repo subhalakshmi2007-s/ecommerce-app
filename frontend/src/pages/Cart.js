@@ -6,29 +6,32 @@ function Cart({ cart, updateQuantity, removeFromCart, user, clearCart, API_URL }
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const placeOrder = async () => {
-    if (!user) {
-      alert('Please login first');
-      return;
-    }
-    if (!address) {
-      alert('Please enter address');
-      return;
-    }
+  if (!user) {
+    alert('Please login first');
+    return;
+  }
+  if (!address) {
+    alert('Please enter address');
+    return;
+  }
 
-    const items = cart.map(item => ({ productId: item.id, quantity: item.quantity }));
-    try {
-      const token = localStorage.getItem('token');
-      await axios.post(`${API_URL}/api/orders`, { items, address }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      clearCart();
-      setAddress('');
-      alert('Order placed successfully!');
-    } catch (err) {
-      alert('Error placing order');
-    }
-  };
-
+  const items = cart.map(item => ({ productId: item.id, quantity: item.quantity }));
+  try {
+    const token = localStorage.getItem('token');
+    await axios.post(`${API_URL}/api/orders`, { 
+      items, 
+      address,
+      userId: user.id 
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    clearCart();
+    setAddress('');
+    alert('Order placed successfully!');
+  } catch (err) {
+    alert('Error placing order');
+  }
+};
   if (cart.length === 0) {
     return <h2>Cart is empty</h2>;
   }

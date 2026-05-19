@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 function Home({ addToCart, API_URL }) {
@@ -54,18 +55,6 @@ function Home({ addToCart, API_URL }) {
 
   if (loading) return <div className="loading">Loading products...</div>;
 
-  if (products.length === 0) {
-    return (
-      <div>
-        <div className="hero">
-          <h1>Welcome to ShopEase</h1>
-          <p>Discover amazing products at best prices!</p>
-        </div>
-        <div className="loading">No products found. Please check back later.</div>
-      </div>
-    );
-  }
-
   return (
     <div>
       <div className="hero">
@@ -116,13 +105,26 @@ function Home({ addToCart, API_URL }) {
       <div className="products-grid">
         {filteredProducts.map(product => (
           <div key={product.id} className="product-card">
-            <img src={product.image_url} alt={product.name} onError={(e) => { e.target.src = 'https://via.placeholder.com/300'; }} />
+            <div className="product-badge">
+              {product.stock < 10 && <span className="badge low-stock">🔥 Low Stock</span>}
+              {product.rating >= 4.5 && <span className="badge bestseller">⭐ Bestseller</span>}
+            </div>
+            <img src={product.image_url} alt={product.name} />
             <div className="product-info">
               <h3>{product.name}</h3>
               <p className="category">{product.category}</p>
-              <p className="price">${product.price}</p>
-              <p className="stock">In Stock: {product.stock} items</p>
+              <p className="description">{product.description?.substring(0, 60)}...</p>
+              <div className="rating">
+                {'⭐'.repeat(Math.floor(product.rating || 4))} {product.rating}
+              </div>
+              <div className="price-cart">
+                <div>
+                  <span className="price">${product.price}</span>
+                </div>
+                <Link to={`/product/${product.id}`} className="view-details-btn">View Details</Link>
+              </div>
               <button onClick={() => addToCart(product)}>Add to Cart</button>
+              <div className="stock-info">In Stock: {product.stock} items</div>
             </div>
           </div>
         ))}
