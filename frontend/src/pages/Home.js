@@ -16,34 +16,30 @@ function Home({ addToCart, API_URL }) {
   }, []);
 
   const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const url = `${API_URL}/api/products`;
-      console.log('Fetching from:', url);
-      const response = await axios.get(url);
-      console.log('Response data:', response.data);
-      console.log('Number of products:', response.data.length);
-      
-      if (response.data && Array.isArray(response.data)) {
-        setProducts(response.data);
-        setFilteredProducts(response.data);
-      } else {
-        console.error('Invalid response format:', response.data);
-        setProducts([]);
-        setFilteredProducts([]);
-        setError('Invalid data format received');
-      }
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      setError(error.message);
+  try {
+    setLoading(true);
+    setError(null);
+    // Use '/api/products' directly (no API_URL needed)
+    const response = await axios.get('/api/products');
+    console.log('Products received:', response.data);
+    
+    if (response.data && Array.isArray(response.data)) {
+      setProducts(response.data);
+      setFilteredProducts(response.data);
+    } else {
       setProducts([]);
       setFilteredProducts([]);
-    } finally {
-      setLoading(false);
+      setError('Invalid data format received');
     }
-  };
-
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    setError(error.message);
+    setProducts([]);
+    setFilteredProducts([]);
+  } finally {
+    setLoading(false);
+  }
+};
   const categories = ['All', ...new Set(products.map(p => p.category))];
 
   useEffect(() => {

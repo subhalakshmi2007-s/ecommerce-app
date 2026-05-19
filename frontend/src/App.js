@@ -6,10 +6,11 @@ import Register from './pages/Register';
 import Cart from './pages/Cart';
 import Admin from './pages/Admin';
 import ProductDetails from './pages/ProductDetails';
-import Orders from './pages/Orders';  // ← ADD THIS LINE
+import Orders from './pages/Orders';
 import Navbar from './components/Navbar';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+// IMPORTANT: Use empty string for same-origin (backend serves frontend)
+const API_URL = '';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -105,14 +106,14 @@ function App() {
       />
       <div className="container">
         <Routes>
-  <Route path="/" element={<Home addToCart={addToCart} API_URL={API_URL} />} />
-  <Route path="/product/:id" element={<ProductDetails addToCart={addToCart} API_URL={API_URL} />} />
-  <Route path="/login" element={<Login setUser={setUser} API_URL={API_URL} />} />
-  <Route path="/register" element={<Register setUser={setUser} API_URL={API_URL} />} />
-  <Route path="/cart" element={<Cart cart={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart} user={user} clearCart={clearCart} API_URL={API_URL} />} />
-  <Route path="/orders" element={<Orders user={user} API_URL={API_URL} />} />
-  <Route path="/admin/*" element={user?.role === 'admin' ? <Admin API_URL={API_URL} /> : <Navigate to="/" />} />
-</Routes>
+          <Route path="/" element={<Home addToCart={addToCart} API_URL={API_URL} />} />
+          <Route path="/product/:id" element={<ProductDetails addToCart={addToCart} API_URL={API_URL} />} />
+          <Route path="/login" element={<Login setUser={setUser} API_URL={API_URL} />} />
+          <Route path="/register" element={<Register setUser={setUser} API_URL={API_URL} />} />
+          <Route path="/cart" element={<Cart cart={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart} user={user} clearCart={clearCart} API_URL={API_URL} />} />
+          <Route path="/orders" element={<Orders user={user} API_URL={API_URL} />} />
+          <Route path="/admin/*" element={user?.role === 'admin' ? <Admin API_URL={API_URL} /> : <Navigate to="/" />} />
+        </Routes>
       </div>
     </BrowserRouter>
   );
