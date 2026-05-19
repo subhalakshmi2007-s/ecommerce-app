@@ -8,6 +8,8 @@ function Orders({ user, API_URL }) {
   useEffect(() => {
     if (user) {
       fetchOrders();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
@@ -29,7 +31,10 @@ function Orders({ user, API_URL }) {
     return (
       <div className="orders-container">
         <h2>My Orders</h2>
-        <p>Please login to view your orders.</p>
+        <div className="no-orders">
+          <p>Please login to view your orders.</p>
+          <a href="/login"><button>Login</button></a>
+        </div>
       </div>
     );
   }
@@ -44,7 +49,7 @@ function Orders({ user, API_URL }) {
         <h2>My Orders</h2>
         <div className="no-orders">
           <p>You haven't placed any orders yet.</p>
-          <button onClick={() => window.location.href = '/'}>Start Shopping</button>
+          <a href="/"><button>Start Shopping</button></a>
         </div>
       </div>
     );
