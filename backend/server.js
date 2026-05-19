@@ -30,7 +30,7 @@ function allQuery(query, params = []) {
   return stmt.all(...params);
 }
 
-// Initialize database
+// Initialize database with products
 function initDB() {
   console.log('📦 Setting up database...');
   
@@ -80,9 +80,12 @@ function initDB() {
     console.log('✅ Admin created: admin@example.com / admin123');
   }
 
-  // Check if products exist
+  // Check if products exist - if not, add them
   const count = getQuery('SELECT COUNT(*) as total FROM products');
+  console.log(`📊 Current products in database: ${count.total}`);
+  
   if (count.total === 0) {
+    console.log('🔄 Adding sample products...');
     const products = [
       ['MacBook Pro 16"', 'Apple M2 Pro chip, 16GB RAM, 512GB SSD', 2499.99, 'Electronics', 15, 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400', 4.8],
       ['Dell XPS 15', 'Intel i7, 32GB RAM, 1TB SSD, 4K Display', 1899.99, 'Electronics', 10, 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=400', 4.7],
@@ -112,9 +115,14 @@ function initDB() {
         product
       );
     }
-    console.log(`✅ ${products.length} products added`);
+    console.log(`✅ ${products.length} products added successfully!`);
+  } else {
+    console.log(`✅ Products already exist: ${count.total} products`);
   }
   
+  // Verify products were added
+  const verifyCount = getQuery('SELECT COUNT(*) as total FROM products');
+  console.log(`📊 Final product count: ${verifyCount.total}`);
   console.log('🎉 Database ready');
 }
 
@@ -129,23 +137,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running', timestamp: new Date() });
 });
 
-// Root API info
-app.get('/api', (req, res) => {
-  res.json({
-    message: 'Ecommerce API is running',
-    endpoints: {
-      products: '/api/products',
-      login: '/api/auth/login',
-      register: '/api/auth/register',
-      health: '/health'
-    }
-  });
-});
-
 // Products routes
 app.get('/api/products', async (req, res) => {
   try {
     const products = allQuery('SELECT * FROM products ORDER BY id');
+    console.log(`📦 Returning ${products.length} products`);
     res.json(products);
   } catch (error) {
     console.error('Products error:', error);
@@ -298,33 +294,18 @@ app.get('/api/admin/stats', async (req, res) => {
 });
 
 // ========== SERVE FRONTEND ==========
-// Try multiple possible paths for frontend build
-const possiblePaths = [
-  path.join(__dirname, '../frontend/build'),
-  path.join(__dirname, 'frontend/build'),
-  path.join(process.cwd(), 'frontend/build')
-];
-
-let frontendPath = null;
-for (const p of possiblePaths) {
-  if (fs.existsSync(p)) {
-    frontendPath = p;
-    console.log(`✅ Found frontend at: ${frontendPath}`);
-    break;
-  }
-}
-
-if (frontendPath) {
+const frontendPath = path.join(__dirname, '../frontend/build');
+if (fs.existsSync(frontendPath)) {
+  console.log('✅ Serving frontend from:', frontendPath);
   app.use(express.static(frontendPath));
   app.get('*', (req, res) => {
-    // Don't interfere with API routes
     if (req.path.startsWith('/api/') || req.path === '/health') {
       return res.status(404).json({ error: 'Not found' });
     }
     res.sendFile(path.join(frontendPath, 'index.html'));
   });
 } else {
-  console.log('⚠️ Frontend build not found. API only mode.');
+  console.log('⚠️ Frontend build not found at:', frontendPath);
 }
 
 // ========== START SERVER ==========
@@ -336,7 +317,4 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📍 Health check: http://localhost:${PORT}/health`);
   console.log(`📍 Products API: http://localhost:${PORT}/api/products`);
-  if (frontendPath) {
-    console.log(`📍 Frontend served from: ${frontendPath}`);
-  }
 });
