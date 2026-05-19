@@ -80,49 +80,43 @@ function initDB() {
     console.log('✅ Admin created: admin@example.com / admin123');
   }
 
-  // Check if products exist - if not, add them
-  const count = getQuery('SELECT COUNT(*) as total FROM products');
-  console.log(`📊 Current products in database: ${count.total}`);
+  // ALWAYS add products (delete old ones first)
+  console.log('🔄 Resetting products...');
+  db.exec('DELETE FROM products');
   
-  if (count.total === 0) {
-    console.log('🔄 Adding sample products...');
-    const products = [
-      ['MacBook Pro 16"', 'Apple M2 Pro chip, 16GB RAM, 512GB SSD', 2499.99, 'Electronics', 15, 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400', 4.8],
-      ['Dell XPS 15', 'Intel i7, 32GB RAM, 1TB SSD, 4K Display', 1899.99, 'Electronics', 10, 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=400', 4.7],
-      ['iPhone 15 Pro', 'A17 Pro chip, 256GB, Titanium', 1099.99, 'Electronics', 25, 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400', 4.9],
-      ['iPhone 17 Pro', 'A19 Pro chip, 512GB, Titanium', 1499.99, 'Electronics', 20, 'https://images.unsplash.com/photo-1591337676887-a217a6970a8a?w=400', 5.0],
-      ['Samsung Galaxy S24', 'Snapdragon 8 Gen 3, 256GB', 999.99, 'Electronics', 20, 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400', 4.6],
-      ['Sony Headphones', 'Noise Cancelling Headphones', 399.99, 'Electronics', 30, 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400', 4.9],
-      ['iPad Pro', 'M2 chip, 256GB, WiFi', 1099.99, 'Electronics', 18, 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400', 4.8],
-      ['Denim Jacket', 'Classic blue denim jacket', 79.99, 'Clothing', 50, 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=400', 4.5],
-      ['Summer Dress', 'Floral print maxi dress', 49.99, 'Clothing', 40, 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=400', 4.6],
-      ['Nike Air Max', 'Running shoes', 129.99, 'Clothing', 35, 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400', 4.7],
-      ['Leather Wallet', 'Genuine leather wallet', 29.99, 'Clothing', 100, 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=400', 4.4],
-      ['Cashmere Sweater', 'Premium cashmere sweater', 149.99, 'Clothing', 25, 'https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=400', 4.8],
-      ['Sports Hoodie', 'Cotton blend hoodie', 59.99, 'Clothing', 60, 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400', 4.5],
-      ['Smart Watch', 'GPS, Heart rate monitor', 399.99, 'Accessories', 20, 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400', 4.7],
-      ['Wireless Earbuds', 'Noise cancellation earbuds', 89.99, 'Accessories', 45, 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400', 4.6],
-      ['Phone Case', 'Shockproof phone case', 19.99, 'Accessories', 200, 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=400', 4.3],
-      ['Laptop Backpack', 'Waterproof backpack', 49.99, 'Accessories', 55, 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400', 4.6],
-      ['Sunglasses', 'UV protection sunglasses', 59.99, 'Accessories', 70, 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400', 4.4],
-      ['Bed Sheets Set', 'Cotton bed sheets set', 49.99, 'Home', 40, 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400', 4.5],
-      ['Gaming Chair', 'Ergonomic gaming chair', 249.99, 'Home', 25, 'https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=400', 4.9]
-    ];
-    
-    for (const product of products) {
-      runQuery(
-        'INSERT INTO products (name, description, price, category, stock, image_url, rating) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        product
-      );
-    }
-    console.log(`✅ ${products.length} products added successfully!`);
-  } else {
-    console.log(`✅ Products already exist: ${count.total} products`);
+  const products = [
+    ['MacBook Pro 16"', 'Apple M2 Pro chip, 16GB RAM, 512GB SSD', 2499.99, 'Electronics', 15, 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400', 4.8],
+    ['Dell XPS 15', 'Intel i7, 32GB RAM, 1TB SSD, 4K Display', 1899.99, 'Electronics', 10, 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=400', 4.7],
+    ['iPhone 15 Pro', 'A17 Pro chip, 256GB, Titanium', 1099.99, 'Electronics', 25, 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400', 4.9],
+    ['iPhone 17 Pro', 'A19 Pro chip, 512GB, Titanium', 1499.99, 'Electronics', 20, 'https://images.unsplash.com/photo-1591337676887-a217a6970a8a?w=400', 5.0],
+    ['Samsung Galaxy S24', 'Snapdragon 8 Gen 3, 256GB', 999.99, 'Electronics', 20, 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400', 4.6],
+    ['Sony Headphones', 'Noise Cancelling Headphones', 399.99, 'Electronics', 30, 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400', 4.9],
+    ['iPad Pro', 'M2 chip, 256GB, WiFi', 1099.99, 'Electronics', 18, 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400', 4.8],
+    ['Denim Jacket', 'Classic blue denim jacket', 79.99, 'Clothing', 50, 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=400', 4.5],
+    ['Summer Dress', 'Floral print maxi dress', 49.99, 'Clothing', 40, 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=400', 4.6],
+    ['Nike Air Max', 'Running shoes', 129.99, 'Clothing', 35, 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400', 4.7],
+    ['Leather Wallet', 'Genuine leather wallet', 29.99, 'Clothing', 100, 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=400', 4.4],
+    ['Cashmere Sweater', 'Premium cashmere sweater', 149.99, 'Clothing', 25, 'https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=400', 4.8],
+    ['Sports Hoodie', 'Cotton blend hoodie', 59.99, 'Clothing', 60, 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400', 4.5],
+    ['Smart Watch', 'GPS, Heart rate monitor', 399.99, 'Accessories', 20, 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400', 4.7],
+    ['Wireless Earbuds', 'Noise cancellation earbuds', 89.99, 'Accessories', 45, 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400', 4.6],
+    ['Phone Case', 'Shockproof phone case', 19.99, 'Accessories', 200, 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=400', 4.3],
+    ['Laptop Backpack', 'Waterproof backpack', 49.99, 'Accessories', 55, 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400', 4.6],
+    ['Sunglasses', 'UV protection sunglasses', 59.99, 'Accessories', 70, 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400', 4.4],
+    ['Bed Sheets Set', 'Cotton bed sheets set', 49.99, 'Home', 40, 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400', 4.5],
+    ['Gaming Chair', 'Ergonomic gaming chair', 249.99, 'Home', 25, 'https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=400', 4.9]
+  ];
+  
+  for (const product of products) {
+    runQuery(
+      'INSERT INTO products (name, description, price, category, stock, image_url, rating) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      product
+    );
   }
+  console.log(`✅ ${products.length} products added successfully!`);
   
-  // Verify products were added
   const verifyCount = getQuery('SELECT COUNT(*) as total FROM products');
-  console.log(`📊 Final product count: ${verifyCount.total}`);
+  console.log(`📊 Total products: ${verifyCount.total}`);
   console.log('🎉 Database ready');
 }
 
