@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 function Register({ setUser, API_URL }) {
   const [name, setName] = useState('');
@@ -15,7 +16,6 @@ function Register({ setUser, API_URL }) {
     setError('');
     setLoading(true);
     
-    // Validation
     if (!name || !email || !password) {
       setError('All fields are required');
       setLoading(false);
@@ -39,14 +39,11 @@ function Register({ setUser, API_URL }) {
       
       console.log('Registration successful:', response.data);
       
-      // Save token and user data
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
-      
-      // Update parent component state
       setUser(response.data.user);
       
-      // Redirect to home page
+      toast.success('Registration successful!');
       navigate('/');
       
     } catch (err) {
@@ -54,13 +51,10 @@ function Register({ setUser, API_URL }) {
       console.error('Error response:', err.response);
       
       if (err.response) {
-        // Server responded with error
         setError(err.response.data?.error || 'Registration failed. Please try again.');
       } else if (err.request) {
-        // Request was made but no response
-        setError('Cannot connect to server. Make sure backend is running on port 5000');
+        setError('Cannot connect to server. Make sure backend is running');
       } else {
-        // Something else happened
         setError('An error occurred. Please try again.');
       }
     } finally {

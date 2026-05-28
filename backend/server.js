@@ -127,16 +127,30 @@ app.get('/api/products/:id', (req, res) => {
   res.json(product);
 });
 
-// Register
+// Register - Fixed version
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    console.log('Registration attempt:', { name, email, passwordLength: password?.length });
+    
     const users = readUsers();
     
+    // Check if user exists
     const existing = users.find(u => u.email === email);
-    if (existing) return res.status(400).json({ error: 'User already exists' });
+    if (existing) {
+      console.log('User already exists:', email);
+      return res.status(400).json({ error: 'User already exists with this email' });
+    }
     
-    const hashedPassword = bcrypt.hashSync(password, 10);
+    // Validate password
+    if (!password || password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+    
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('Password hashed successfully');
+    
     const newUser = {
       id: users.length + 1,
       name,
@@ -147,28 +161,71 @@ app.post('/api/auth/register', async (req, res) => {
     users.push(newUser);
     writeUsers(users);
     
-    const token = jwt.sign({ userId: newUser.id, role: newUser.role }, process.env.JWT_SECRET);
-    res.json({ token, user: { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role } });
+    // Create token
+    const token = jwt.sign(
+      { userId: newUser.id, role: newUser.role }, 
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    
+    console.log('User registered successfully:', email);
+    res.json({ 
+      token, 
+      user: { 
+        id: newUser.id, 
+        name: newUser.name, 
+        email: newUser.email, 
+        role: newUser.role 
+      } 
+    });
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// Login
+// Login - Fixed version
 app.post('/api/auth/login', (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('Login attempt for:', email);
+    
     const users = readUsers();
+    console.log('Total users in DB:', users.length);
     
     const user = users.find(u => u.email === email);
-    if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+    if (!user) {
+      console.log('User not found:', email);
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
     
+    console.log('User found, comparing passwords...');
     const valid = bcrypt.compareSync(password, user.password);
-    if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
     
-    const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET);
-    res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+    if (!valid) {
+      console.log('Invalid password for user:', email);
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    
+    console.log('Login successful for:', email);
+    
+    const token = jwt.sign(
+      { userId: user.id, role: user.role }, 
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    
+    res.json({ 
+      token, 
+      user: { 
+        id: user.id, 
+        name: user.name, 
+        email: user.email, 
+        role: user.role 
+      } 
+    });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ error: error.message });
   }
 });
