@@ -13,9 +13,14 @@ function Home({ addToCart, API_URL }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('default');
   const [error, setError] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     fetchProducts();
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
   }, []);
 
   const fetchProducts = async () => {
@@ -73,6 +78,43 @@ function Home({ addToCart, API_URL }) {
     setFilteredProducts(result);
   }, [selectedCategory, searchTerm, sortBy, products]);
 
+  const handleAddToCart = (product) => {
+    if (!user) {
+      toast.error('Please login first to add items to cart!');
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1500);
+      return;
+    }
+    
+    if (product.stock === 0) {
+      toast.error('Out of stock!');
+      return;
+    }
+    
+    addToCart(product);
+  };
+
+  const handleBuyNow = (product) => {
+    if (!user) {
+      toast.error('Please login first to buy products!');
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1500);
+      return;
+    }
+    
+    if (product.stock === 0) {
+      toast.error('Out of stock! Cannot buy.');
+      return;
+    }
+    
+    addToCart(product);
+    setTimeout(() => {
+      window.location.href = '/cart';
+    }, 500);
+  };
+
   if (loading) {
     return (
       <div className="products-grid">
@@ -101,7 +143,6 @@ function Home({ addToCart, API_URL }) {
         <AdBanner products={products} />
         <div className="no-results">
           <h3>No products found in database</h3>
-          <p>Please check if backend is running and has products.</p>
           <button onClick={fetchProducts}>Refresh Products</button>
         </div>
       </div>
@@ -122,10 +163,8 @@ function Home({ addToCart, API_URL }) {
         </div>
       </div>
 
-      {/* Product Carousel Banner - Shows products inside */}
       <AdBanner products={products} />
 
-      {/* Featured Products Section */}
       {featuredProducts.length > 0 && (
         <div className="featured-section">
           <h2>🌟 Featured Products</h2>
@@ -137,13 +176,9 @@ function Home({ addToCart, API_URL }) {
                   <h4>{product.name}</h4>
                   <div className="rating">⭐ {product.rating}</div>
                   <p className="price">${product.price}</p>
-                  <button onClick={() => {
-                    if (product.stock === 0) {
-                      toast.error('Out of stock!');
-                      return;
-                    }
-                    addToCart(product);
-                  }}>Add to Cart</button>
+                  <button onClick={() => handleAddToCart(product)}>
+                    {!user ? 'Login to Add' : 'Add to Cart'}
+                  </button>
                 </div>
               </div>
             ))}
@@ -212,19 +247,24 @@ function Home({ addToCart, API_URL }) {
                 </div>
                 <Link to={`/product/${product.id}`} className="view-details-btn">View Details</Link>
               </div>
-              <button 
-                onClick={() => {
-                  if (product.stock === 0) {
-                    toast.error('Out of stock!');
-                    return;
-                  }
-                  addToCart(product);
-                }}
-                disabled={product.stock === 0}
-                style={product.stock === 0 ? { background: '#ccc', cursor: 'not-allowed' } : {}}
-              >
-                {product.stock === 0 ? '❌ Out of Stock' : '🛒 Add to Cart'}
-              </button>
+              <div className="product-buttons">
+                <button 
+                  className="add-to-cart-btn-home"
+                  onClick={() => handleAddToCart(product)}
+                  disabled={product.stock === 0}
+                  style={product.stock === 0 ? { background: '#ccc', cursor: 'not-allowed' } : {}}
+                >
+                  {product.stock === 0 ? '❌ Out of Stock' : (!user ? '🔒 Login to Add' : '🛒 Add to Cart')}
+                </button>
+                <button 
+                  className="buy-now-btn-home"
+                  onClick={() => handleBuyNow(product)}
+                  disabled={product.stock === 0}
+                  style={product.stock === 0 ? { background: '#ccc', cursor: 'not-allowed' } : {}}
+                >
+                  {product.stock === 0 ? 'Sold Out' : '⚡ Buy Now'}
+                </button>
+              </div>
               <div className="stock-info">
                 {product.stock > 0 ? `✅ In Stock: ${product.stock} items` : '❌ Currently Unavailable'}
               </div>

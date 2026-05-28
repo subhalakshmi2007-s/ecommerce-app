@@ -13,6 +13,7 @@ function AdBanner({ products }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [customAds, setCustomAds] = useState([]);
   const [displayProducts, setDisplayProducts] = useState([]);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     // Load custom ads from localStorage
@@ -22,8 +23,9 @@ function AdBanner({ products }) {
     }
 
     // Check if user is admin
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    setIsAdmin(user.role === 'admin');
+    const userData = JSON.parse(localStorage.getItem('user') || '{}');
+    setIsAdmin(userData.role === 'admin');
+    setUser(userData);
   }, []);
 
   // Use products for the banner
@@ -57,6 +59,19 @@ function AdBanner({ products }) {
     setCustomAds(updatedAds);
     localStorage.setItem('customAds', JSON.stringify(updatedAds));
     toast.success('Ad deleted!');
+  };
+
+  const handleQuickAdd = (e, product) => {
+    e.preventDefault();
+    if (!user || !user.id) {
+      toast.error('Please login first to add items to cart!');
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1500);
+      return;
+    }
+    toast.success(`Added ${product.name} to cart!`);
+    // You can also call your addToCart function here if passed as prop
   };
 
   // Auto scroll products
@@ -97,11 +112,12 @@ function AdBanner({ products }) {
                       <span className="banner-price">${product.price}</span>
                       <span className="discount-badge">-{Math.floor(Math.random() * 30 + 10)}%</span>
                     </div>
-                    <button className="quick-add-btn" onClick={(e) => {
-                      e.preventDefault();
-                      // Add to cart function would go here
-                      toast.success(`Added ${product.name} to cart!`);
-                    }}>Quick Add</button>
+                    <button 
+                      className="quick-add-btn" 
+                      onClick={(e) => handleQuickAdd(e, product)}
+                    >
+                      {!user ? '🔒 Login' : 'Quick Add'}
+                    </button>
                   </div>
                 </Link>
               </div>
