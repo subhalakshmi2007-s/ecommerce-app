@@ -22,7 +22,6 @@ function Home({ addToCart, API_URL }) {
     try {
       setLoading(true);
       setError(null);
-      // Use relative path - this will work on both local and Render
       const response = await axios.get('/api/products');
       console.log('Products received:', response.data);
       
@@ -99,7 +98,7 @@ function Home({ addToCart, API_URL }) {
           <h1>Welcome to ShopEase</h1>
           <p>Discover amazing products at best prices!</p>
         </div>
-        <AdBanner />
+        <AdBanner products={products} />
         <div className="no-results">
           <h3>No products found in database</h3>
           <p>Please check if backend is running and has products.</p>
@@ -123,8 +122,10 @@ function Home({ addToCart, API_URL }) {
         </div>
       </div>
 
-      <AdBanner />
+      {/* Product Carousel Banner - Shows products inside */}
+      <AdBanner products={products} />
 
+      {/* Featured Products Section */}
       {featuredProducts.length > 0 && (
         <div className="featured-section">
           <h2>🌟 Featured Products</h2>

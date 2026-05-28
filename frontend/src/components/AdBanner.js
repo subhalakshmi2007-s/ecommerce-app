@@ -1,54 +1,24 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 
-function AdBanner() {
-  const [ads, setAds] = useState([]);
-  const [currentAdIndex, setCurrentAdIndex] = useState(0);
+function AdBanner({ products }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [showAdmin, setShowAdmin] = useState(false);
   const [newAd, setNewAd] = useState({
     title: '',
     description: '',
-    image: '',
-    link: '',
     bgColor: '#667eea'
   });
   const [isAdmin, setIsAdmin] = useState(false);
+  const [customAds, setCustomAds] = useState([]);
+  const [displayProducts, setDisplayProducts] = useState([]);
 
   useEffect(() => {
-    // Load ads from localStorage
-    const savedAds = localStorage.getItem('ads');
+    // Load custom ads from localStorage
+    const savedAds = localStorage.getItem('customAds');
     if (savedAds) {
-      setAds(JSON.parse(savedAds));
-    } else {
-      // Default ads
-      const defaultAds = [
-        {
-          id: 1,
-          title: 'Summer Sale!',
-          description: 'Get up to 50% off on selected items',
-          image: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?w=800',
-          link: '/products',
-          bgColor: '#ff6b6b'
-        },
-        {
-          id: 2,
-          title: 'New Arrivals',
-          description: 'Check out our latest collection',
-          image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800',
-          link: '/products',
-          bgColor: '#4ecdc4'
-        },
-        {
-          id: 3,
-          title: 'Free Shipping',
-          description: 'On orders over $50',
-          image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800',
-          link: '/cart',
-          bgColor: '#45b7d1'
-        }
-      ];
-      setAds(defaultAds);
-      localStorage.setItem('ads', JSON.stringify(defaultAds));
+      setCustomAds(JSON.parse(savedAds));
     }
 
     // Check if user is admin
@@ -56,15 +26,13 @@ function AdBanner() {
     setIsAdmin(user.role === 'admin');
   }, []);
 
-  // Auto-rotate ads every 5 seconds
+  // Use products for the banner
   useEffect(() => {
-    if (ads.length > 1) {
-      const interval = setInterval(() => {
-        setCurrentAdIndex((prev) => (prev + 1) % ads.length);
-      }, 5000);
-      return () => clearInterval(interval);
+    if (products && products.length > 0) {
+      // Take first 8 products for the banner
+      setDisplayProducts(products.slice(0, 8));
     }
-  }, [ads.length]);
+  }, [products]);
 
   const handleAddAd = () => {
     if (!newAd.title || !newAd.description) {
@@ -75,77 +43,87 @@ function AdBanner() {
     const ad = {
       id: Date.now(),
       ...newAd,
-      image: newAd.image || 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?w=800'
+      type: 'custom'
     };
-    const updatedAds = [...ads, ad];
-    setAds(updatedAds);
-    localStorage.setItem('ads', JSON.stringify(updatedAds));
-    setNewAd({ title: '', description: '', image: '', link: '', bgColor: '#667eea' });
+    const updatedAds = [...customAds, ad];
+    setCustomAds(updatedAds);
+    localStorage.setItem('customAds', JSON.stringify(updatedAds));
+    setNewAd({ title: '', description: '', bgColor: '#667eea' });
     toast.success('Ad added successfully!');
   };
 
   const handleDeleteAd = (id) => {
-    const updatedAds = ads.filter(ad => ad.id !== id);
-    setAds(updatedAds);
-    localStorage.setItem('ads', JSON.stringify(updatedAds));
-    if (currentAdIndex >= updatedAds.length) {
-      setCurrentAdIndex(0);
-    }
+    const updatedAds = customAds.filter(ad => ad.id !== id);
+    setCustomAds(updatedAds);
+    localStorage.setItem('customAds', JSON.stringify(updatedAds));
     toast.success('Ad deleted!');
   };
 
-  const currentAd = ads[currentAdIndex];
+  // Auto scroll products
+  useEffect(() => {
+    if (displayProducts.length > 3) {
+      const interval = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % (displayProducts.length - 2));
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [displayProducts.length]);
 
-  if (!currentAd) return null;
+  if (!products || products.length === 0) {
+    return null;
+  }
 
   return (
-    <div className="ad-banner-container">
-      <div 
-        className="ad-banner"
-        style={{ background: `linear-gradient(135deg, ${currentAd.bgColor}, ${currentAd.bgColor}dd)` }}
-      >
-        <div className="ad-content">
-          <h2>{currentAd.title}</h2>
-          <p>{currentAd.description}</p>
-          <button onClick={() => window.location.href = currentAd.link}>
-            Shop Now →
-          </button>
+    <div className="product-banner-container">
+      <div className="product-banner">
+        <div className="banner-content">
+          <h2>🔥 Hot Deals 🔥</h2>
+          <p>Limited time offers on trending products!</p>
+          <Link to="/products" className="banner-shop-btn">Shop All →</Link>
         </div>
-        <div className="ad-image">
-          <img src={currentAd.image} alt={currentAd.title} />
+        
+        <div className="banner-products-carousel">
+          <div 
+            className="carousel-track"
+            style={{ transform: `translateX(-${currentIndex * 33.33}%)` }}
+          >
+            {displayProducts.map((product, idx) => (
+              <div key={idx} className="banner-product-card">
+                <Link to={`/product/${product.id}`}>
+                  <img src={product.image_url} alt={product.name} />
+                  <div className="banner-product-info">
+                    <h4>{product.name}</h4>
+                    <div className="price-badge">
+                      <span className="banner-price">${product.price}</span>
+                      <span className="discount-badge">-{Math.floor(Math.random() * 30 + 10)}%</span>
+                    </div>
+                    <button className="quick-add-btn" onClick={(e) => {
+                      e.preventDefault();
+                      // Add to cart function would go here
+                      toast.success(`Added ${product.name} to cart!`);
+                    }}>Quick Add</button>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Ad Indicators */}
-      {ads.length > 1 && (
-        <div className="ad-indicators">
-          {ads.map((_, idx) => (
-            <button
-              key={idx}
-              className={`ad-dot ${idx === currentAdIndex ? 'active' : ''}`}
-              onClick={() => setCurrentAdIndex(idx)}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Admin Controls - Only visible to admin */}
+      {/* Admin Controls */}
       {isAdmin && (
-        <div className="ad-admin-panel">
-          <button onClick={() => setShowAdmin(!showAdmin)} className="admin-ad-toggle">
-            {showAdmin ? '✕ Close Ad Manager' : '📢 Manage Ads'}
+        <div className="banner-admin-panel">
+          <button onClick={() => setShowAdmin(!showAdmin)} className="admin-banner-toggle">
+            {showAdmin ? '✕ Close Banner Manager' : '📢 Manage Banner Ads'}
           </button>
           
           {showAdmin && (
-            <div className="ad-admin-form">
-              <h3>Manage Advertisements</h3>
-              
-              {/* Add New Ad */}
-              <div className="add-ad-form">
-                <h4>Add New Ad</h4>
+            <div className="banner-admin-form">
+              <h3>Custom Text Ads</h3>
+              <div className="add-custom-ad">
                 <input
                   type="text"
-                  placeholder="Ad Title"
+                  placeholder="Ad Title (e.g., Summer Sale!)"
                   value={newAd.title}
                   onChange={(e) => setNewAd({...newAd, title: e.target.value})}
                 />
@@ -154,18 +132,6 @@ function AdBanner() {
                   placeholder="Description"
                   value={newAd.description}
                   onChange={(e) => setNewAd({...newAd, description: e.target.value})}
-                />
-                <input
-                  type="text"
-                  placeholder="Image URL (optional)"
-                  value={newAd.image}
-                  onChange={(e) => setNewAd({...newAd, image: e.target.value})}
-                />
-                <input
-                  type="text"
-                  placeholder="Link URL (e.g., /products)"
-                  value={newAd.link}
-                  onChange={(e) => setNewAd({...newAd, link: e.target.value})}
                 />
                 <select
                   value={newAd.bgColor}
@@ -176,25 +142,24 @@ function AdBanner() {
                   <option value="#4ecdc4">Teal</option>
                   <option value="#45b7d1">Blue</option>
                   <option value="#96ceb4">Green</option>
-                  <option value="#feca57">Yellow</option>
-                  <option value="#ff9ff3">Pink</option>
                 </select>
-                <button onClick={handleAddAd}>Add Ad</button>
+                <button onClick={handleAddAd}>Add Text Ad</button>
               </div>
 
-              {/* Existing Ads List */}
-              <div className="ads-list">
-                <h4>Existing Ads</h4>
-                {ads.map(ad => (
-                  <div key={ad.id} className="ad-item">
-                    <div>
-                      <strong>{ad.title}</strong>
-                      <p>{ad.description}</p>
+              {customAds.length > 0 && (
+                <div className="custom-ads-list">
+                  <h4>Your Custom Ads</h4>
+                  {customAds.map(ad => (
+                    <div key={ad.id} className="custom-ad-item">
+                      <div>
+                        <strong>{ad.title}</strong>
+                        <p>{ad.description}</p>
+                      </div>
+                      <button onClick={() => handleDeleteAd(ad.id)}>Delete</button>
                     </div>
-                    <button onClick={() => handleDeleteAd(ad.id)}>Delete</button>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
