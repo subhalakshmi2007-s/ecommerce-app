@@ -1199,3 +1199,221 @@ select {
   background: var(--bg-primary);
   color: var(--text-primary);
 }
+/* Ad Banner Styles */
+.ad-banner-container {
+  margin: 30px 0;
+  position: relative;
+}
+
+.ad-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 15px;
+  overflow: hidden;
+  padding: 30px;
+  min-height: 250px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+
+.ad-banner:hover {
+  transform: translateY(-3px);
+}
+
+.ad-content {
+  flex: 1;
+  color: white;
+  z-index: 1;
+}
+
+.ad-content h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.ad-content p {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  opacity: 0.95;
+}
+
+.ad-content button {
+  background: white;
+  color: #333;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: auto;
+}
+
+.ad-content button:hover {
+  transform: translateX(5px);
+  background: #f0f0f0;
+}
+
+.ad-image {
+  flex: 0.5;
+  text-align: center;
+}
+
+.ad-image img {
+  max-width: 100%;
+  max-height: 180px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+/* Ad Indicators */
+.ad-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.ad-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ccc;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s;
+}
+
+.ad-dot.active {
+  background: #3498db;
+  transform: scale(1.2);
+  width: 20px;
+  border-radius: 10px;
+}
+
+/* Admin Panel */
+.ad-admin-panel {
+  margin-top: 20px;
+}
+
+.admin-ad-toggle {
+  background: #2c3e50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  width: auto;
+}
+
+.admin-ad-toggle:hover {
+  background: #1a252f;
+}
+
+.ad-admin-form {
+  margin-top: 15px;
+  padding: 20px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.ad-admin-form h3 {
+  margin-bottom: 15px;
+  color: var(--text-primary);
+}
+
+.ad-admin-form h4 {
+  margin: 15px 0 10px;
+  color: var(--text-primary);
+}
+
+.add-ad-form {
+  padding: 15px;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.add-ad-form input,
+.add-ad-form select {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.add-ad-form button {
+  background: #27ae60;
+  width: auto;
+  padding: 10px 20px;
+}
+
+.add-ad-form button:hover {
+  background: #219a52;
+}
+
+.ads-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.ad-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.ad-item strong {
+  color: var(--text-primary);
+}
+
+.ad-item p {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+.ad-item button {
+  background: #e74c3c;
+  width: auto;
+  padding: 5px 15px;
+  font-size: 0.8rem;
+}
+
+.ad-item button:hover {
+  background: #c0392b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ad-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .ad-content {
+    margin-bottom: 20px;
+  }
+  
+  .ad-content h2 {
+    font-size: 1.5rem;
+  }
+  
+  .ad-image {
+    flex: 1;
+  }
+  
+  .ad-image img {
+    max-height: 120px;
+  }
+}

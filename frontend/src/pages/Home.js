@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import ProductSkeleton from '../components/ProductSkeleton';
 import { toast } from 'react-hot-toast';
+import AdBanner from '../components/AdBanner';
 
 function Home({ addToCart, API_URL }) {
   const [products, setProducts] = useState([]);
@@ -44,7 +45,6 @@ function Home({ addToCart, API_URL }) {
 
   const categories = ['All', ...new Set(products.map(p => p.category))];
 
-  // Enhancement 4: Get category count
   const getCategoryCount = (category) => {
     if (category === 'All') return products.length;
     return products.filter(p => p.category === category).length;
@@ -73,7 +73,6 @@ function Home({ addToCart, API_URL }) {
     setFilteredProducts(result);
   }, [selectedCategory, searchTerm, sortBy, products]);
 
-  // Enhancement 2: Loading Skeleton
   if (loading) {
     return (
       <div className="products-grid">
@@ -101,14 +100,12 @@ function Home({ addToCart, API_URL }) {
         </div>
         <div className="no-results">
           <h3>No products found in database</h3>
-          <p>Please check the backend API at: {API_URL}/api/products</p>
           <button onClick={fetchProducts}>Refresh Products</button>
         </div>
       </div>
     );
   }
 
-  // Enhancement 5: Featured products (top rated)
   const featuredProducts = products.filter(p => p.rating >= 4.7).slice(0, 4);
 
   return (
@@ -123,7 +120,10 @@ function Home({ addToCart, API_URL }) {
         </div>
       </div>
 
-      {/* Enhancement 5: Featured Products Section */}
+      {/* Ad Banner - Added Here */}
+      <AdBanner />
+
+      {/* Featured Products Section */}
       {featuredProducts.length > 0 && (
         <div className="featured-section">
           <h2>🌟 Featured Products</h2>
@@ -168,7 +168,6 @@ function Home({ addToCart, API_URL }) {
         </div>
       </div>
 
-      {/* Enhancement 4: Category tabs with counts */}
       <div className="category-tabs">
         {categories.map(cat => (
           <button 
@@ -191,7 +190,6 @@ function Home({ addToCart, API_URL }) {
             <div className="product-badge">
               {product.stock < 10 && product.stock > 0 && <span className="badge low-stock">🔥 Low Stock</span>}
               {product.rating >= 4.5 && <span className="badge bestseller">⭐ Bestseller</span>}
-              {/* Enhancement 1: Out of Stock Badge */}
               {product.stock === 0 && <span className="badge out-of-stock">❌ Out of Stock</span>}
             </div>
             <img 
