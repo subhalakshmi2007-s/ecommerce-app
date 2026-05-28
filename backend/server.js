@@ -220,6 +220,40 @@ app.get('/api/orders/my-orders', (req, res) => {
   }
 });
 
+// Cancel order (User can cancel only pending orders)
+app.put('/api/orders/:id/cancel', (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const orders = readOrders();
+    const orderIndex = orders.findIndex(o => o.id === parseInt(req.params.id));
+    
+    if (orderIndex === -1) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    
+    // Check if order belongs to the user
+    if (orders[orderIndex].user_id !== decoded.userId) {
+      return res.status(403).json({ error: 'You can only cancel your own orders' });
+    }
+    
+    // Check if order can be cancelled (only pending orders)
+    if (orders[orderIndex].status !== 'pending') {
+      return res.status(400).json({ error: `Cannot cancel order with status: ${orders[orderIndex].status}. Only pending orders can be cancelled.` });
+    }
+    
+    // Update order status to cancelled
+    orders[orderIndex].status = 'cancelled';
+    writeOrders(orders);
+    
+    res.json({ message: 'Order cancelled successfully!' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Admin routes
 app.get('/api/admin/products', (req, res) => {
   const products = readProducts();

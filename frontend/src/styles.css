@@ -1913,3 +1913,67 @@ select {
     gap: 0;
   }
 }
+
+/* Cancel Order Button */
+.order-actions {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border-color);
+  text-align: right;
+}
+
+.cancel-order-btn {
+  background: #e74c3c;
+  width: auto;
+  padding: 8px 20px;
+  font-size: 0.9rem;
+}
+
+.cancel-order-btn:hover {
+  background: #c0392b;
+}
+
+.cancel-order-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.order-cancelled-note {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #ffe6e6;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.order-cancelled-note span {
+  color: #e74c3c;
+  font-size: 0.85rem;
+}
+
+/* Status Colors */
+.status-cancelled {
+  background: #e74c3c;
+  color: white;
+}
+
+/* Update existing status colors */
+.status-pending {
+  background: #ff9800;
+  color: white;
+}
+
+.status-paid {
+  background: #2196f3;
+  color: white;
+}
+
+.status-shipped {
+  background: #9c27b0;
+  color: white;
+}
+
+.status-delivered {
+  background: #4caf50;
+  color: white;
+}
