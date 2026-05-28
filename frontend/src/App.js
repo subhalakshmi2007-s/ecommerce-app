@@ -8,6 +8,7 @@ import Admin from './pages/Admin';
 import ProductDetails from './pages/ProductDetails';
 import Orders from './pages/Orders';
 import Navbar from './components/Navbar';
+import { Toaster, toast } from 'react-hot-toast';
 
 // IMPORTANT: Use empty string for same-origin (backend serves frontend)
 const API_URL = '';
@@ -52,24 +53,32 @@ function App() {
   }, []);
 
   const addToCart = (product) => {
+    // Check if product is out of stock
+    if (product.stock === 0) {
+      toast.error('❌ Out of stock! Cannot add to cart.');
+      return;
+    }
+    
     const existing = cart.find(item => item.id === product.id);
     let newCart;
     if (existing) {
       newCart = cart.map(item =>
         item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
       );
+      toast.success(`✓ Added another ${product.name} to cart!`);
     } else {
       newCart = [...cart, { ...product, quantity: 1 }];
+      toast.success(`✓ ${product.name} added to cart!`);
     }
     setCart(newCart);
     localStorage.setItem('cart', JSON.stringify(newCart));
-    alert('Added to cart!');
   };
 
   const removeFromCart = (productId) => {
     const newCart = cart.filter(item => item.id !== productId);
     setCart(newCart);
     localStorage.setItem('cart', JSON.stringify(newCart));
+    toast.success('Item removed from cart');
   };
 
   const updateQuantity = (productId, quantity) => {
@@ -87,16 +96,19 @@ function App() {
   const clearCart = () => {
     setCart([]);
     localStorage.setItem('cart', '[]');
+    toast.success('Cart cleared');
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
+    toast.success('Logged out successfully');
   };
 
   return (
     <BrowserRouter>
+      <Toaster position="top-right" />
       <Navbar 
         user={user} 
         logout={logout} 

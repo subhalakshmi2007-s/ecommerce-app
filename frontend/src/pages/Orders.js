@@ -6,12 +6,10 @@ function Orders({ user, API_URL }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      fetchOrders();
-    } else {
-      setLoading(false);
-    }
-  }, [user]);
+  if (user) {
+    fetchOrders();
+  }
+}, [user]);
 
   const fetchOrders = async () => {
     try {

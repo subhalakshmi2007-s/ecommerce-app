@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import ProductSkeleton from '../components/ProductSkeleton';
+import { toast } from 'react-hot-toast';
 
 function Home({ addToCart, API_URL }) {
   const [products, setProducts] = useState([]);
@@ -16,31 +18,37 @@ function Home({ addToCart, API_URL }) {
   }, []);
 
   const fetchProducts = async () => {
-  try {
-    setLoading(true);
-    setError(null);
-    // Use '/api/products' directly (no API_URL needed)
-    const response = await axios.get('/api/products');
-    console.log('Products received:', response.data);
-    
-    if (response.data && Array.isArray(response.data)) {
-      setProducts(response.data);
-      setFilteredProducts(response.data);
-    } else {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axios.get('/api/products');
+      console.log('Products received:', response.data);
+      
+      if (response.data && Array.isArray(response.data)) {
+        setProducts(response.data);
+        setFilteredProducts(response.data);
+      } else {
+        setProducts([]);
+        setFilteredProducts([]);
+        setError('Invalid data format received');
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setError(error.message);
       setProducts([]);
       setFilteredProducts([]);
-      setError('Invalid data format received');
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    setError(error.message);
-    setProducts([]);
-    setFilteredProducts([]);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
   const categories = ['All', ...new Set(products.map(p => p.category))];
+
+  // Enhancement 4: Get category count
+  const getCategoryCount = (category) => {
+    if (category === 'All') return products.length;
+    return products.filter(p => p.category === category).length;
+  };
 
   useEffect(() => {
     let result = [...products];
@@ -65,11 +73,11 @@ function Home({ addToCart, API_URL }) {
     setFilteredProducts(result);
   }, [selectedCategory, searchTerm, sortBy, products]);
 
+  // Enhancement 2: Loading Skeleton
   if (loading) {
     return (
-      <div className="loading">
-        <h2>Loading products...</h2>
-        <p>Please wait while we fetch the products.</p>
+      <div className="products-grid">
+        {[1,2,3,4,5,6].map(n => <ProductSkeleton key={n} />)}
       </div>
     );
   }
@@ -100,6 +108,9 @@ function Home({ addToCart, API_URL }) {
     );
   }
 
+  // Enhancement 5: Featured products (top rated)
+  const featuredProducts = products.filter(p => p.rating >= 4.7).slice(0, 4);
+
   return (
     <div>
       <div className="hero">
@@ -111,6 +122,32 @@ function Home({ addToCart, API_URL }) {
           <span>🚚 Free Shipping</span>
         </div>
       </div>
+
+      {/* Enhancement 5: Featured Products Section */}
+      {featuredProducts.length > 0 && (
+        <div className="featured-section">
+          <h2>🌟 Featured Products</h2>
+          <div className="featured-grid">
+            {featuredProducts.map(product => (
+              <div key={product.id} className="featured-card">
+                <img src={product.image_url} alt={product.name} />
+                <div className="featured-info">
+                  <h4>{product.name}</h4>
+                  <div className="rating">⭐ {product.rating}</div>
+                  <p className="price">${product.price}</p>
+                  <button onClick={() => {
+                    if (product.stock === 0) {
+                      toast.error('Out of stock!');
+                      return;
+                    }
+                    addToCart(product);
+                  }}>Add to Cart</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="filter-bar">
         <div className="search-box">
@@ -131,6 +168,7 @@ function Home({ addToCart, API_URL }) {
         </div>
       </div>
 
+      {/* Enhancement 4: Category tabs with counts */}
       <div className="category-tabs">
         {categories.map(cat => (
           <button 
@@ -138,7 +176,7 @@ function Home({ addToCart, API_URL }) {
             className={`category-btn ${selectedCategory === cat ? 'active' : ''}`}
             onClick={() => setSelectedCategory(cat)}
           >
-            {cat}
+            {cat} <span className="category-count">({getCategoryCount(cat)})</span>
           </button>
         ))}
       </div>
@@ -151,8 +189,10 @@ function Home({ addToCart, API_URL }) {
         {filteredProducts.map(product => (
           <div key={product.id} className="product-card">
             <div className="product-badge">
-              {product.stock < 10 && <span className="badge low-stock">🔥 Low Stock</span>}
+              {product.stock < 10 && product.stock > 0 && <span className="badge low-stock">🔥 Low Stock</span>}
               {product.rating >= 4.5 && <span className="badge bestseller">⭐ Bestseller</span>}
+              {/* Enhancement 1: Out of Stock Badge */}
+              {product.stock === 0 && <span className="badge out-of-stock">❌ Out of Stock</span>}
             </div>
             <img 
               src={product.image_url} 
@@ -172,8 +212,22 @@ function Home({ addToCart, API_URL }) {
                 </div>
                 <Link to={`/product/${product.id}`} className="view-details-btn">View Details</Link>
               </div>
-              <button onClick={() => addToCart(product)}>🛒 Add to Cart</button>
-              <div className="stock-info">✅ In Stock: {product.stock} items</div>
+              <button 
+                onClick={() => {
+                  if (product.stock === 0) {
+                    toast.error('Out of stock!');
+                    return;
+                  }
+                  addToCart(product);
+                }}
+                disabled={product.stock === 0}
+                style={product.stock === 0 ? { background: '#ccc', cursor: 'not-allowed' } : {}}
+              >
+                {product.stock === 0 ? '❌ Out of Stock' : '🛒 Add to Cart'}
+              </button>
+              <div className="stock-info">
+                {product.stock > 0 ? `✅ In Stock: ${product.stock} items` : '❌ Currently Unavailable'}
+              </div>
             </div>
           </div>
         ))}

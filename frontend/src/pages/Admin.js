@@ -28,8 +28,9 @@ function Admin({ API_URL }) {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+  fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
