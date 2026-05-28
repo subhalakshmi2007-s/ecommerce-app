@@ -1647,3 +1647,27 @@ select {
     flex: 0 0 100%;
   }
 }
+
+/* Login Prompt in Product Details */
+.login-prompt {
+  margin-top: 15px;
+  padding: 10px;
+  background: #fff3cd;
+  border: 1px solid #ffecb5;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.login-prompt a {
+  color: #856404;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.login-prompt a:hover {
+  text-decoration: underline;
+}
+
+.out-of-stock-badge {
+  background: #999 !important;
+}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 function ProductDetails({ addToCart, API_URL }) {
   const { id } = useParams();
@@ -9,9 +10,15 @@ function ProductDetails({ addToCart, API_URL }) {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     fetchProduct();
+    // Check if user is logged in
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
   }, [id]);
 
   const fetchProduct = async () => {
@@ -26,11 +33,41 @@ function ProductDetails({ addToCart, API_URL }) {
   };
 
   const handleAddToCart = () => {
+    // Check if user is logged in
+    if (!user) {
+      toast.error('Please login first to add items to cart!');
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+      return;
+    }
+    
+    // Check if product is out of stock
+    if (product.stock === 0) {
+      toast.error('Out of stock! Cannot add to cart.');
+      return;
+    }
+    
     addToCart(product);
-    alert(`${product.name} added to cart!`);
+    toast.success(`${product.name} added to cart!`);
   };
 
   const handleBuyNow = () => {
+    // Check if user is logged in
+    if (!user) {
+      toast.error('Please login first to buy products!');
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+      return;
+    }
+    
+    // Check if product is out of stock
+    if (product.stock === 0) {
+      toast.error('Out of stock! Cannot buy.');
+      return;
+    }
+    
     addToCart(product);
     navigate('/cart');
   };
@@ -45,7 +82,8 @@ function ProductDetails({ addToCart, API_URL }) {
       <div className="product-details">
         <div className="product-image-section">
           <img src={product.image_url} alt={product.name} />
-          {product.stock < 10 && <span className="stock-warning">🔥 Only {product.stock} left!</span>}
+          {product.stock < 10 && product.stock > 0 && <span className="stock-warning">🔥 Only {product.stock} left!</span>}
+          {product.stock === 0 && <span className="stock-warning out-of-stock-badge">❌ Out of Stock</span>}
         </div>
         
         <div className="product-info-section">
@@ -68,15 +106,41 @@ function ProductDetails({ addToCart, API_URL }) {
           
           <div className="quantity-selector">
             <label>Quantity:</label>
-            <button onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
+            <button 
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              disabled={product.stock === 0}
+            >-</button>
             <span>{quantity}</span>
-            <button onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}>+</button>
+            <button 
+              onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+              disabled={product.stock === 0}
+            >+</button>
           </div>
           
           <div className="action-buttons">
-            <button className="add-to-cart-btn" onClick={handleAddToCart}>🛒 Add to Cart</button>
-            <button className="buy-now-btn" onClick={handleBuyNow}>⚡ Buy Now</button>
+            <button 
+              className="add-to-cart-btn" 
+              onClick={handleAddToCart}
+              disabled={product.stock === 0}
+              style={product.stock === 0 ? { background: '#ccc', cursor: 'not-allowed' } : {}}
+            >
+              {product.stock === 0 ? '❌ Out of Stock' : (!user ? '🔒 Login to Add' : '🛒 Add to Cart')}
+            </button>
+            <button 
+              className="buy-now-btn" 
+              onClick={handleBuyNow}
+              disabled={product.stock === 0}
+              style={product.stock === 0 ? { background: '#ccc', cursor: 'not-allowed' } : {}}
+            >
+              {product.stock === 0 ? '❌ Out of Stock' : (!user ? '🔒 Login to Buy' : '⚡ Buy Now')}
+            </button>
           </div>
+          
+          {!user && (
+            <div className="login-prompt">
+              <p>🔐 Please <a href="/login">login</a> to add items to cart</p>
+            </div>
+          )}
           
           <div className="delivery-info">
             <p>🚚 Free delivery on orders over $50</p>
