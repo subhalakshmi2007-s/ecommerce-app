@@ -11,7 +11,7 @@ import Navbar from './components/Navbar';
 import { Toaster, toast } from 'react-hot-toast';
 
 // FIXED: Use full URL for backend
-const API_URL = 'http://localhost:5000';
+const API_URL = window.location.origin;
 
 function App() {
   const [user, setUser] = useState(null);
