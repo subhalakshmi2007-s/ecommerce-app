@@ -17,6 +17,7 @@ function Login({ setUser, API_URL }) {
 
     try {
       console.log('Attempting login for:', email);
+      console.log('API_URL:', API_URL);
       
       const response = await axios.post(`${API_URL}/api/auth/login`, { 
         email, 
@@ -39,7 +40,7 @@ function Login({ setUser, API_URL }) {
       if (err.response) {
         setError(err.response.data?.error || 'Invalid email or password');
       } else if (err.request) {
-        setError('Cannot connect to server. Make sure backend is running');
+        setError('Cannot connect to server. Make sure backend is running on port 5000');
       } else {
         setError('An error occurred. Please try again.');
       }

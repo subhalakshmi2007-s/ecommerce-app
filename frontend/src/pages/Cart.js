@@ -70,47 +70,51 @@ function Cart({ cart, updateQuantity, removeFromCart, user, clearCart, API_URL }
       return;
     }
 
-    const items = cart.map(item => ({ productId: item.id, quantity: item.quantity }));
+    const items = cart.map(item => ({ 
+      productId: item.id, 
+      quantity: item.quantity 
+    }));
     
-    // Format full address
     const fullAddress = `${formData.address}, ${formData.landmark ? formData.landmark + ', ' : ''}${formData.city}, ${formData.state} - ${formData.pincode}`;
     
     try {
       setIsSubmitting(true);
       const token = localStorage.getItem('token');
-      await axios.post(`${API_URL}/api/orders`, { 
+      console.log('Placing order with items:', items);
+      console.log('Address:', fullAddress);
+      
+      const response = await axios.post(`${API_URL}/api/orders`, { 
         items, 
         address: fullAddress,
-        userId: user.id,
-        deliveryDetails: {
-          fullName: formData.fullName,
-          phone: formData.phone,
-          address: formData.address,
-          city: formData.city,
-          state: formData.state,
-          pincode: formData.pincode,
-          landmark: formData.landmark
-        }
+        userId: user.id
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      clearCart();
-      setFormData({
-        fullName: '',
-        phone: '',
-        address: '',
-        city: '',
-        state: '',
-        pincode: '',
-        landmark: ''
-      });
-      toast.success('Order placed successfully!');
-      setTimeout(() => {
-        window.location.href = '/orders';
-      }, 1500);
+      
+      console.log('Order response:', response.data);
+      
+      if (response.data.message) {
+        clearCart();
+        setFormData({
+          fullName: '',
+          phone: '',
+          address: '',
+          city: '',
+          state: '',
+          pincode: '',
+          landmark: ''
+        });
+        toast.success('Order placed successfully!');
+        setTimeout(() => {
+          window.location.href = '/orders';
+        }, 1500);
+      } else {
+        toast.error('Failed to place order');
+      }
     } catch (err) {
-      toast.error('Error placing order');
-      console.error(err);
+      console.error('Error placing order:', err);
+      const errorMsg = err.response?.data?.error || 'Error placing order';
+      toast.error(errorMsg);
     } finally {
       setIsSubmitting(false);
     }
@@ -136,12 +140,16 @@ function Cart({ cart, updateQuantity, removeFromCart, user, clearCart, API_URL }
           {cart.map(item => (
             <div key={item.id} className="cart-item">
               <div className="cart-item-image">
-                <img src={item.image_url} alt={item.name} />
+                <img 
+                  src={item.image_url || 'https://via.placeholder.com/70'} 
+                  alt={item.name}
+                  onError={(e) => { e.target.src = 'https://via.placeholder.com/70'; }}
+                />
               </div>
               <div className="cart-item-details">
                 <h4>{item.name}</h4>
                 <p className="cart-item-price">${item.price}</p>
-                <p className="cart-item-category">{item.category}</p>
+                <p className="cart-item-category">{item.category || 'General'}</p>
               </div>
               <div className="cart-item-actions">
                 <div className="quantity-control">
@@ -149,7 +157,9 @@ function Cart({ cart, updateQuantity, removeFromCart, user, clearCart, API_URL }
                   <span>{item.quantity}</span>
                   <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
                 </div>
-                <button className="remove-btn" onClick={() => removeFromCart(item.id)}>Remove</button>
+                <button className="remove-btn" onClick={() => removeFromCart(item.id)}>
+                  Remove
+                </button>
               </div>
               <div className="cart-item-total">
                 <p>Total: ${(item.price * item.quantity).toFixed(2)}</p>
@@ -169,7 +179,7 @@ function Cart({ cart, updateQuantity, removeFromCart, user, clearCart, API_URL }
 
         <div className="delivery-details-section">
           <h3>Delivery Details</h3>
-          <form className="delivery-form">
+          <form className="delivery-form" onSubmit={(e) => e.preventDefault()}>
             <div className="form-row">
               <div className="form-group">
                 <label>Full Name *</label>

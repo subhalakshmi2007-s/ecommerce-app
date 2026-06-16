@@ -10,8 +10,8 @@ import Orders from './pages/Orders';
 import Navbar from './components/Navbar';
 import { Toaster, toast } from 'react-hot-toast';
 
-// IMPORTANT: Use empty string for same-origin (backend serves frontend)
-const API_URL = '';
+// FIXED: Use full URL for backend
+const API_URL = 'http://localhost:5000';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -53,7 +53,6 @@ function App() {
   }, []);
 
   const addToCart = (product) => {
-    // Check if product is out of stock
     if (product.stock === 0) {
       toast.error('❌ Out of stock! Cannot add to cart.');
       return;

@@ -18,34 +18,42 @@ function Orders({ user, API_URL }) {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem('token');
+      console.log('Fetching orders...');
       const response = await axios.get(`${API_URL}/api/orders/my-orders`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      console.log('Orders received:', response.data);
       setOrders(response.data);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching orders:', error);
+      toast.error('Failed to fetch orders');
       setLoading(false);
     }
   };
 
   const cancelOrder = async (orderId) => {
-    if (!window.confirm('Are you sure you want to cancel this order?')) {
+    if (!window.confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
       return;
     }
     
     setCancellingId(orderId);
+    console.log(`Cancelling order #${orderId}...`);
+    
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`${API_URL}/api/orders/${orderId}/cancel`, {}, {
+      const response = await axios.put(`${API_URL}/api/orders/${orderId}/cancel`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      
+      console.log('Cancel response:', response.data);
       toast.success('Order cancelled successfully!');
       fetchOrders(); // Refresh orders list
+      
     } catch (error) {
+      console.error('Error cancelling order:', error);
       const errorMsg = error.response?.data?.error || 'Failed to cancel order';
       toast.error(errorMsg);
-      console.error('Error cancelling order:', error);
     } finally {
       setCancellingId(null);
     }
@@ -90,6 +98,17 @@ function Orders({ user, API_URL }) {
     }
   };
 
+  const getStatusText = (status) => {
+    switch(status) {
+      case 'pending': return '⏳ Pending';
+      case 'paid': return '✅ Paid';
+      case 'shipped': return '📦 Shipped';
+      case 'delivered': return '🏠 Delivered';
+      case 'cancelled': return '❌ Cancelled';
+      default: return status;
+    }
+  };
+
   const canCancel = (status) => {
     return status === 'pending';
   };
@@ -103,12 +122,24 @@ function Orders({ user, API_URL }) {
             <div>
               <strong>Order #{order.id}</strong>
               <span className={`order-status ${getStatusBadgeClass(order.status)}`}>
-                {order.status.toUpperCase()}
+                {getStatusText(order.status)}
               </span>
             </div>
             <div className="order-date">
               {new Date(order.created_at).toLocaleDateString()} at {new Date(order.created_at).toLocaleTimeString()}
             </div>
+          </div>
+          
+          <div className="order-items">
+            <strong>Items:</strong>
+            {order.items && order.items.map((item, idx) => (
+              <div key={idx} className="order-item">
+                <span>{item.name}</span>
+                <span>Quantity: {item.quantity}</span>
+                <span>${item.price} each</span>
+                <span>Total: ${(item.price * item.quantity).toFixed(2)}</span>
+              </div>
+            ))}
           </div>
           
           <div className="order-details">
@@ -118,7 +149,7 @@ function Orders({ user, API_URL }) {
             </div>
             <div className="order-total">
               <strong>Total Amount:</strong>
-              <h3>${order.total}</h3>
+              <h3>${order.total.toFixed(2)}</h3>
             </div>
           </div>
           
