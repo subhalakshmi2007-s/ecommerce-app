@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "name": "Admin",
+    "email": "admin@example.com",
+    "password": "$2a$10$JnL0BrodCzpV3Ld4zCraYOu9CnFVK8UNLT/XWUfwYIuqUKfwdcNRO",
+    "role": "admin"
+  },
+  {
+    "id": 2,
+    "name": "Subha",
+    "email": "subha123@gmail.com",
+    "password": "$2a$10$bASKvqGzbLbNrV.N2DaKgekQHC3M9UpvcDLG.y6B5QQMb7Bn2vA8y",
+    "role": "user",
+    "createdAt": "2026-06-15T11:07:03.511Z"
+  }
+]

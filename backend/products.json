@@ -1,0 +1,202 @@
+[
+  {
+    "id": 1,
+    "name": "MacBook Pro 16\"",
+    "description": "Apple M2 Pro chip, 16GB RAM, 512GB SSD",
+    "price": 2499.99,
+    "category": "Electronics",
+    "stock": 15,
+    "image_url": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400",
+    "rating": 4.8
+  },
+  {
+    "id": 2,
+    "name": "Dell XPS 15",
+    "description": "Intel i7, 32GB RAM, 1TB SSD, 4K Display",
+    "price": 1899.99,
+    "category": "Electronics",
+    "stock": 10,
+    "image_url": "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=400",
+    "rating": 4.7
+  },
+  {
+    "id": 3,
+    "name": "iPhone 15 Pro",
+    "description": "A17 Pro chip, 256GB, Titanium",
+    "price": 1099.99,
+    "category": "Electronics",
+    "stock": 25,
+    "image_url": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400",
+    "rating": 4.9
+  },
+  {
+    "id": 4,
+    "name": "iPhone 17 Pro",
+    "description": "A19 Pro chip, 512GB, Titanium",
+    "price": 1499.99,
+    "category": "Electronics",
+    "stock": 20,
+    "image_url": "https://images.unsplash.com/photo-1591337676887-a217a6970a8a?w=400",
+    "rating": 5
+  },
+  {
+    "id": 5,
+    "name": "Samsung Galaxy S24",
+    "description": "Snapdragon 8 Gen 3, 256GB",
+    "price": 999.99,
+    "category": "Electronics",
+    "stock": 20,
+    "image_url": "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400",
+    "rating": 4.6
+  },
+  {
+    "id": 6,
+    "name": "Sony WH-1000XM5",
+    "description": "Noise Cancelling Headphones",
+    "price": 399.99,
+    "category": "Electronics",
+    "stock": 30,
+    "image_url": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400",
+    "rating": 4.9
+  },
+  {
+    "id": 7,
+    "name": "iPad Pro 12.9\"",
+    "description": "M2 chip, 256GB, WiFi",
+    "price": 1099.99,
+    "category": "Electronics",
+    "stock": 18,
+    "image_url": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400",
+    "rating": 4.8
+  },
+  {
+    "id": 8,
+    "name": "Denim Jacket",
+    "description": "Classic blue denim jacket",
+    "price": 79.99,
+    "category": "Clothing",
+    "stock": 50,
+    "image_url": "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=400",
+    "rating": 4.5
+  },
+  {
+    "id": 9,
+    "name": "Summer Dress",
+    "description": "Floral print maxi dress",
+    "price": 49.99,
+    "category": "Clothing",
+    "stock": 40,
+    "image_url": "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=400",
+    "rating": 4.6
+  },
+  {
+    "id": 10,
+    "name": "Nike Air Max",
+    "description": "Running shoes",
+    "price": 129.99,
+    "category": "Clothing",
+    "stock": 35,
+    "image_url": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400",
+    "rating": 4.7
+  },
+  {
+    "id": 11,
+    "name": "Leather Wallet",
+    "description": "Genuine leather wallet",
+    "price": 29.99,
+    "category": "Clothing",
+    "stock": 100,
+    "image_url": "https://images.unsplash.com/photo-1627123424574-724758594e93?w=400",
+    "rating": 4.4
+  },
+  {
+    "id": 12,
+    "name": "Cashmere Sweater",
+    "description": "Premium cashmere sweater",
+    "price": 149.99,
+    "category": "Clothing",
+    "stock": 25,
+    "image_url": "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=400",
+    "rating": 4.8
+  },
+  {
+    "id": 13,
+    "name": "Sports Hoodie",
+    "description": "Cotton blend hoodie",
+    "price": 59.99,
+    "category": "Clothing",
+    "stock": 60,
+    "image_url": "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400",
+    "rating": 4.5
+  },
+  {
+    "id": 14,
+    "name": "Smart Watch Ultra",
+    "description": "GPS, Heart rate monitor",
+    "price": 399.99,
+    "category": "Accessories",
+    "stock": 20,
+    "image_url": "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400",
+    "rating": 4.7
+  },
+  {
+    "id": 15,
+    "name": "Wireless Earbuds",
+    "description": "Noise cancellation, 24hr battery",
+    "price": 89.99,
+    "category": "Accessories",
+    "stock": 45,
+    "image_url": "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400",
+    "rating": 4.6
+  },
+  {
+    "id": 16,
+    "name": "Phone Case",
+    "description": "Shockproof, clear design",
+    "price": 19.99,
+    "category": "Accessories",
+    "stock": 200,
+    "image_url": "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=400",
+    "rating": 4.3
+  },
+  {
+    "id": 17,
+    "name": "Laptop Backpack",
+    "description": "Waterproof, 15.6 inch",
+    "price": 49.99,
+    "category": "Accessories",
+    "stock": 55,
+    "image_url": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400",
+    "rating": 4.6
+  },
+  {
+    "id": 18,
+    "name": "Sunglasses",
+    "description": "UV protection, polarized",
+    "price": 59.99,
+    "category": "Accessories",
+    "stock": 70,
+    "image_url": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400",
+    "rating": 4.4
+  },
+  {
+    "id": 19,
+    "name": "Bed Sheets Set",
+    "description": "100% Egyptian cotton",
+    "price": 49.99,
+    "category": "Home",
+    "stock": 40,
+    "image_url": "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400",
+    "rating": 4.5
+  },
+  {
+    "id": 20,
+    "name": "Gaming Chair",
+    "description": "Ergonomic racing style",
+    "price": 249.99,
+    "category": "Home",
+    "stock": 25,
+    "image_url": "https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=400",
+    "rating": 4.9
+  }
+]
