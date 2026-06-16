@@ -5,14 +5,14 @@ services:
     buildCommand: cd backend && npm install
     startCommand: cd backend && node server.js
     envVars:
+      - key: NODE_ENV
+        value: production
       - key: JWT_SECRET
-        generateValue: true
-      - key: PORT
-        value: 5000
+        value: secret123
 
   - type: static
     name: ecommerce-frontend
-    buildCommand: cd frontend && npm install && npm run build
+    buildCommand: cd frontend && npm install && CI=false npm run build
     publishPath: ./frontend/build
     envVars:
       - key: REACT_APP_API_URL
